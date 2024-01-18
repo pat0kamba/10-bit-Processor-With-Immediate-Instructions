@@ -1,0 +1,28 @@
+module upcount2 (
+input logic CLR , CLKb ,
+output logic [1:0] CNT
+);
+
+always_ff@(negedge CLKb, negedge CLR)
+	begin
+		//CLEAR BUTTON CHECK
+		if(CLR = 1'b1)
+		begin
+		CNT = 2'b00;
+		end
+	
+	else
+		begin
+		//RESET COUNT if 3 TO 0
+		if(CNT == 3)
+			begin
+			CNT = 2'b00;
+			end
+		else
+			begin
+			//ADD TO COUNT
+			CNT++;
+			end
+	end
+	
+endmodule

@@ -1,0 +1,155 @@
+module registerFileDNC (
+input logic [9:0] D ,
+input logic ENW , ENR0 , ENR1 , CLKb , CLK50m,
+input logic [2:0] WRA , RDA0 , RDA1 ,
+output logic [9:0] Q0 , Q1
+);
+
+//REGISTER FORMAT
+// 0_000_XXX_YYY
+
+//ENR1 IS ALWAYS 1'b1
+
+//debouncer
+/*
+input logic A_noisy,
+	input logic CLK50M, 
+	output logic A
+*/
+debouncer debounce(
+	.A_noisy(CLKb),
+	.CLK50M(CLK50m),
+	.A(clock)
+
+);
+
+//prameter list
+parameter 
+reg0 = 3'b000,
+reg1 = 3'b001,
+reg2 = 3'b010,
+reg3 = 3'b011,
+reg4 = 3'b100,
+reg5 = 3'b101,
+reg6 = 3'b110,
+reg7 = 3'b111;
+
+
+//logic
+logic [6:0] WriteReg;
+logic [6:0] ReadReg;
+logic Clock; //REMOVE ON FINAL
+
+always_ff@(negedge clock)
+begin
+	if(ENW == 1'b1)
+	begin	
+		//WRITE registers
+		case(WRA)
+			reg0 : WriteReg[0] = 1'b1;
+			reg1 : WriteReg[1] = 1'b1;
+			reg2 : WriteReg[2] = 1'b1;
+			reg3 : WriteReg[3] = 1'b1;
+			reg4 : WriteReg[4] = 1'b1;
+			reg5 : WriteReg[5] = 1'b1;
+			reg6 : WriteReg[6] = 1'b1;
+		endcase
+	end
+	else
+	begin
+	WriteReg[6:0] = 1'b0;
+	end
+	
+	//READ registers INTERNAL
+	if(ENR0 == 1'b1)	
+	begin
+		case(RDA0)
+			reg0 : Q0 <= ReadReg[0];
+			reg1 : Q0 <= ReadReg[1];
+			reg2 : Q0 <= ReadReg[2];
+			reg3 : Q0 <= ReadReg[3];
+			reg4 : Q0 <= ReadReg[4];
+			reg5 : Q0 <= ReadReg[5];
+			reg6 : Q0 <= ReadReg[6];
+		endcase
+	end
+	else if(ENR1 == 1'b1)
+	begin
+		case(RDA1)
+			reg0 : Q1 <= ReadReg[0];
+			reg1 : Q1 <= ReadReg[1];
+			reg2 : Q1 <= ReadReg[2];
+			reg3 : Q1 <= ReadReg[3];
+			reg4 : Q1 <= ReadReg[4];
+			reg5 : Q1 <= ReadReg[5];
+			reg6 : Q1 <= ReadReg[6];
+		endcase
+	end
+end
+
+//REGISTERS
+
+//register in/out
+/*
+input logic [N-1:0] D,
+input logic CLKb, EN,
+output logic [N-1:0] Q
+*/
+
+//ZERO
+reg10 zero(
+	.CLKb(clock),
+	.EN(WriteReg[0]),
+	.D(D),
+	.Q(ReadReg[0])
+);
+
+//ONE
+reg10 one(
+	.CLKb(clock),
+	.EN(WriteReg[1]),
+	.D(D),
+	.Q(ReadReg[1])
+);
+
+//TWO
+reg10 two(
+	.CLKb(clock),
+	.EN(WriteReg[2]),
+	.D(D),
+	.Q(ReadReg[2])
+);
+
+//THRE'E
+reg10 three(
+	.CLKb(clock),
+	.EN(WriteReg[3]),
+	.D(D),
+	.Q(ReadReg[3])
+);
+
+//FOUR
+reg10 four(
+	.CLKb(clock),
+	.EN(WriteReg[4]),
+	.D(D),
+	.Q(ReadReg[4])
+);
+
+//FIVE
+reg10 five(
+	.CLKb(clock),
+	.EN(WriteReg[5]),
+	.D(D),
+	.Q(ReadReg[5])
+);
+
+//SIX
+reg10 six(
+	.CLKb(clock),
+	.EN(WriteReg[6]),
+	.D(D),
+	.Q(ReadReg[6])
+);
+
+endmodule

@@ -1,0 +1,297 @@
+module controller(
+input logic [9:0] INSTR,
+input logic [1:0] T, 
+output logic [9:0] IMM,
+output logic [2:0] Rin,
+output logic [2:0] Rout,
+output logic ENW, ENR, Ain, Gin, Gout, ALUcont, Ext, IRin, Clr
+);
+
+	parameter 	LOAD = 4'b0000,
+				COPY = 4'b0001,
+				FLP = 4'b0010,
+				INV = 4'b0011,
+				ADD = 4'b0100,
+				SUB = 4'b0101,
+				AND = 4'b0110,
+				OR = 4'b0111,
+				ANDI = 3'b100,
+				SUBI = 3'b101,
+				ANDI = 3'b110,
+				ORI = 3'b111,
+				Ry = INSTR[2:0],
+				Rx = INSTR[5:3];
+	
+	assign IMM = {1'b0, 1'b0, 1'b0, INSTR[6:1]};
+	
+	always_comb
+	begin
+		//default values 
+		ENW = 1'b0; ENR = 1'b0; Ain = 1'b0; Gin = 1'b0;
+		Gout = 2'b00; ALUcont = 2'b00; Ext = 1'b0; 
+		IRin = 1'b0; Clr = 1'b0;
+		
+		case(INSTR[9:6])
+			LOAD:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Ext = 1'b1;
+						ENW = 1'b1;
+						Rin = Rx;
+						Clr = 1'b1;
+					end
+			end
+			COPY:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Rin = Rx;
+						ENW = 1'b1;
+						Clr = 1'b1;
+					end
+			end
+			FLP:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b010;
+					end
+					2'b10:
+					begin
+						Gout = 1'b1;
+						ENW = 1'b1;
+						Rin = Rx;
+						Clr = 1'b1;
+					end
+			end
+			INV:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b011;
+					end
+					2'b10:
+					begin
+						Gout = 1'b1;
+						ENW = 1'b1;
+						Rin = Rx;
+						Clr = 1'b1;
+					end
+			end
+			ADD:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Ain = 1'b1;
+						Rout = Rx;
+						ENR = 1'b1;
+					end
+					2'b10:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b100;
+					end
+					2'b11:
+					begin
+						Gout = 1'b1;
+						Rin = Rx;
+						ENW = 1'b1;
+						Clr = 1'b1;
+					end
+			end
+			SUB:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Ain = 1'b1;
+						Rout = Rx;
+						ENR = 1'b1;
+					end
+					2'b10:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b101;
+					end
+					2'b11:
+					begin
+						Gout = 1'b1;
+						Rin = Rx;
+						ENW = 1'b1;
+						Clr = 1'b1;
+					end
+			end
+			AND:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Ain = 1'b1;
+						Rout = Rx;
+						ENR = 1'b1;
+					end
+					2'b10:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b110;
+					end
+					2'b11:
+					begin
+						Gout = 1'b1;
+						Rin = Rx;
+						ENW = 1'b1;
+						Clr = 1'b1;
+					end
+			end
+			OR:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+					end
+					2'b01:
+					begin
+						Ain = 1'b1;
+						Rout = Rx;
+						ENR = 1'b1;
+					end
+					2'b10:
+					begin
+						Rout = Ry;
+						ENR = 1'b1;
+						Gin = 1'b1;
+						ALUcont = 3'b111;
+					end
+					2'b11:
+					begin
+						Gout = 1'b1;
+						Rin = Rx;
+						ENW = 1'b1;
+						Clr = 1'b1;
+					end
+			end
+		end
+		case(INSTR[9:7])
+			ANDI:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+						Ain = 1'b1;
+						Rout = INSTR[0];
+						ENR = 1'b1;
+					end
+					2'b01:
+					begin
+					end
+			end
+			SUBI:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+						Ain = 1'b1;
+						Rout = INSTR[0];
+						ENR = 1'b1;
+					end
+					2'b01:
+					begin
+					end
+			end
+			ANDI:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+						Ain = 1'b1;
+						Rout = INSTR[0];
+						ENR = 1'b1;
+					end
+					2'b01:
+					begin
+					end
+			end
+			ORI:
+			begin
+				case(T)
+					2'b00:
+					begin
+						IRin = 1'b1;
+						Ext = 1'b1;
+						Ain = 1'b1;
+						Rout = INSTR[0];
+						ENR = 1'b1;
+					end
+					2'b01:
+					begin
+					end
+			end
+		end
+		
+	end
+
+
+endmodule
